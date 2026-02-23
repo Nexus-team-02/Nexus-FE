@@ -20,7 +20,7 @@ export async function createTeam(body: CreateTeamRequest) {
   }
 }
 
-export async function getTeamMembers(teamId) {
+export async function getTeamMembers(teamId: number) {
   try {
     const res = await client.get(`/api/teams/${teamId}/members`)
     return res.data.result
@@ -51,7 +51,7 @@ export async function inviteMember(body: InviteTeamRequest[]) {
   }
 }
 
-export async function getTeamRole(teamId) {
+export async function getTeamRole(teamId: number) {
   try {
     const res = await client.get(`/api/teams/${teamId}/my-role`)
     return res.data.result.role
