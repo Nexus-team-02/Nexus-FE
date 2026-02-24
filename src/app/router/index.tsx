@@ -18,6 +18,7 @@ import BackendApiIntegrationPage from '@/pages/Backend/BackendApiIntegrationPage
 import FrontendApiDocsPage from '@/pages/Frontend/FrontendApiDocsPage'
 import FrontendApiIntegrationPage from '@/pages/Frontend/FrontendApiIntegrationPage'
 import PmPage from '@/pages/PM/PmPage'
+import NotionCallback from '@/pages/PM/NotionCallback'
 import QaPage from '@/pages/QA/QaPage'
 
 export const router = createBrowserRouter([
@@ -51,6 +52,14 @@ export const router = createBrowserRouter([
             element: (
               <ProtectedRoute>
                 <TeamDetailPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: '/notion/callback',
+            element: (
+              <ProtectedRoute>
+                <NotionCallback />
               </ProtectedRoute>
             ),
           },
