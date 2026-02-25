@@ -1,42 +1,23 @@
 import { Member } from '@/types/user'
 import Avatar from '@/assets/profile.svg?react'
+import { ROLE_CONFIG, getRoleFromApi } from '@/constants/role'
 
 interface Props {
   member: Member
 }
 
-const ROLE_STYLE = {
-  FRONTEND: {
-    label: 'FRONTEND',
-    badge: 'bg-[#93C2FF]/70 text-[#5d83b4]',
-    card: 'bg-blue-50/60',
-  },
-  BACKEND: {
-    label: 'BACKEND',
-    badge: 'bg-[#FFE08B]/70 text-[#cfa83a]',
-    card: 'bg-yellow-50/60',
-  },
-  PM: {
-    label: 'PM',
-    badge: 'bg-[#FFB8B9]/70 text-[#c46163]',
-    card: 'bg-pink-50/60',
-  },
-  QA: {
-    label: 'QA',
-    badge: 'bg-[#49CC90]/70 text-[#579176]',
-    card: 'bg-green-50/60',
-  },
-} as const
-
 export default function MemberCard({ member }: Props) {
   const { name, email, role } = member
-  const style = ROLE_STYLE[role]
+
+  const uiRole = getRoleFromApi(role)
+
+  const config = uiRole ? ROLE_CONFIG[uiRole] : undefined
 
   return (
     <div
       className={`flex items-center gap-4
         border border-black/10 rounded-lg px-5 py-4
-        ${style?.card ?? 'bg-white/70'}`}
+        ${config?.card ?? 'bg-white/70'}`}
     >
       <Avatar className='w-12 h-12 shrink-0' />
 
@@ -47,11 +28,11 @@ export default function MemberCard({ member }: Props) {
 
             <span
               className={`inline-flex items-center justify-center
-              text-[10px] leading-none font-light
-              px-2 py-1 rounded-full
-              ${style.badge}`}
+                text-[10px] leading-none font-light
+                px-2 py-1 rounded-full
+                ${config?.badge ?? ''}`}
             >
-              {style.label}
+              {config?.label ?? role}
             </span>
           </div>
 

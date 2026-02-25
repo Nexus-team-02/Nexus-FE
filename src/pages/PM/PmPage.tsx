@@ -1,24 +1,69 @@
-//import NotionSection from '@/components/Team/NotionSection'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import NotionSection from '@/components/Team/NotionSection'
 import GanttChart from '@/components/PM/Gantt/GanttChart'
-import AIChatWidget from '@/components/PM/AIChatWidget'
-import ChatBtn from '@/assets/chat_btn.svg?react'
+import { getNotionStatus } from '@/api/notion'
+import useApi from '@/hook/useApi'
+
+interface NotionStatus {
+  connected: boolean
+  workspaceId: string | null
+  workspaceName: string | null
+  databaseId: string | null
+  databaseSelected: boolean
+}
 
 export default function PmPage() {
-  const [isChatOpen, setIsChatOpen] = useState(false)
+  const { teamId } = useParams()
+  const { execute } = useApi(getNotionStatus)
+
+  const [notionStatus, setNotionStatus] = useState<NotionStatus>({
+    connected: false,
+    workspaceId: null,
+    workspaceName: null,
+    databaseId: null,
+    databaseSelected: false,
+  })
+
+  const isReady = notionStatus.connected && notionStatus.databaseSelected
+
+  useEffect(() => {
+    if (!teamId) return
+
+    const fetchStatus = async () => {
+      try {
+        const result = await execute(Number(teamId))
+        setNotionStatus(result)
+      } catch (error) {
+        console.error('Failed to load Notion status.', error)
+      }
+    }
+
+    fetchStatus()
+  }, [teamId, execute])
+
+  const handleUpdated = async () => {
+    if (!teamId) return
+
+    try {
+      const result = await execute(Number(teamId))
+      setNotionStatus(result)
+    } catch (error) {
+      console.error('Failed to reload Notion status.', error)
+    }
+  }
 
   return (
-    <div>
-      <div className='py-30'>
-        <NotionSection />
+    <div className='pt-60 px-40'>
+      {isReady ? (
         <GanttChart />
-        <ChatBtn
-          className='cursor-pointer fixed bottom-10 right-10 w-16 h-16 hover:scale-105 transition-transform z-50'
-          onClick={() => setIsChatOpen(true)}
+      ) : (
+        <NotionSection
+          connected={notionStatus.connected}
+          databaseSelected={notionStatus.databaseSelected}
+          onUpdated={handleUpdated}
         />
-        <AIChatWidget isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
-      </div>
+      )}
     </div>
   )
 }
