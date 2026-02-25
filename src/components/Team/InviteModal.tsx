@@ -3,15 +3,8 @@ import Modal from '@/components/common/Modal'
 import Button from '@/components/common/Button'
 import useApi from '@/hook/useApi'
 import { searchMembers, inviteMember } from '@/api/team'
-import { Member, SearchUser } from '@/types/user'
-import { Role } from '@/types/user'
-
-const ROLE_API_MAP: Record<Role, string> = {
-  FRONTEND: 'FRONTEND',
-  BACKEND: 'BACKEND',
-  QA: 'QA',
-  PM: 'PROJECTMANAGER',
-}
+import { Member, SearchUser, Role } from '@/types/user'
+import { ROLE_CONFIG } from '@/constants/role'
 
 interface Props {
   teamId: number
@@ -55,14 +48,14 @@ export default function InviteModal({ teamId, onClose, onInvite }: Props) {
       const payload = selected.map((user) => ({
         teamId,
         memberId: user.memberId,
-        role: ROLE_API_MAP[user.role],
+        role: ROLE_CONFIG[user.role].api,
       }))
 
       await inviteExecute(payload)
       onInvite?.(selected)
       onClose()
     } catch (err) {
-      console.error('초대 실패', err)
+      console.error('Failed to invite members.', err)
     }
   }
 
@@ -116,10 +109,11 @@ export default function InviteModal({ teamId, onClose, onInvite }: Props) {
               }
               className='rounded border border-black/20 px-2 py-1 text-sm'
             >
-              <option value='FRONTEND'>Frontend</option>
-              <option value='BACKEND'>Backend</option>
-              <option value='PM'>PM</option>
-              <option value='QA'>QA</option>
+              {Object.entries(ROLE_CONFIG).map(([role, config]) => (
+                <option key={role} value={role}>
+                  {config.label}
+                </option>
+              ))}
             </select>
           </div>
         ))}
