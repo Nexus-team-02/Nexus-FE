@@ -52,7 +52,7 @@ export default function AIChatWidget({ isOpen, onClose }: Props) {
   return (
     <>
       {isOpen && (
-        <div className='fixed bottom-10 right-10 w-80 h-150 bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] flex flex-col overflow-hidden z-50 border border-gray-100'>
+        <div className='fixed bottom-10 right-10 w-90 h-150 bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] flex flex-col overflow-hidden z-50 border border-gray-100'>
           <div className='bg-linear-to-r from-[#FBEDEC] to-[#F3ADCF]  px-5 py-4 flex justify-between items-center'>
             <div className='flex items-center gap-2 font-bold text-gray-900 text-[17px]'>
               <HeaderIcon className='w-9 h-9' />
