@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { PATH } from '@/app/router/path'
 import { Team } from '@/types/team'
 
-import NewChangesSlider from './NewChangesSlider'
+//import NewChangesSlider from './NewChangesSlider'
 import AllProjectsSection from './AllProjectsSection'
 import Plus from '@/assets/plus_white.svg?react'
 
@@ -32,7 +32,6 @@ export default function MyTeamSection() {
         </button>
       </div>
 
-      <NewChangesSlider teams={teams} />
       <AllProjectsSection teams={teams} />
     </section>
   )

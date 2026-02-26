@@ -1,10 +1,18 @@
-import { getDayOffset } from '@/utils/date'
+import { getDayOffset, getToday } from '@/utils/date'
 import { DateRange } from '@/types/gantt'
 
 export default function ActualBar({ date, DAY_WIDTH }: { date: DateRange; DAY_WIDTH: number }) {
+  const today = getToday()
+
   const startOffset = getDayOffset(date.start)
-  const endOffset = getDayOffset(date.end)
-  const duration = endOffset - startOffset + 1
+  const endOffset = getDayOffset(
+    `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(
+      today.getDate(),
+    ).padStart(2, '0')}`,
+  )
+
+  const duration = endOffset - startOffset
+  if (duration <= 0) return null
 
   return (
     <div

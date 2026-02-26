@@ -1,5 +1,6 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios'
 import { useAuthStore } from '@/stores/authStore'
+import { useLoadingStore } from '@/stores/loadingStore'
 
 interface AxiosRequestConfigWithRetry extends AxiosRequestConfig {
   _retry?: boolean
@@ -7,10 +8,11 @@ interface AxiosRequestConfigWithRetry extends AxiosRequestConfig {
 
 const client = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
-  timeout: 5000,
+  timeout: 20000,
 })
 
 client.interceptors.request.use((config) => {
+  useLoadingStore.getState().startLoading()
   const token = useAuthStore.getState().accessToken
   if (token && config.headers) {
     config.headers['Authorization'] = `Bearer ${token}`
@@ -55,6 +57,7 @@ client.interceptors.response.use(
         return Promise.reject(err)
       }
     }
+    useLoadingStore.getState().stopLoading()
     return Promise.reject(error)
   },
 )

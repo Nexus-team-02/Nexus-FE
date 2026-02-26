@@ -1,8 +1,9 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import { addDays, BASE_DATE, formatDate, TASK_COL_WIDTH } from '@/utils/date'
 import { Page } from '@/types/gantt'
 import PlannedBar from './PlannedBar'
 import ActualBar from './ActualBar'
+import ApiStatusModal from '../ApiStatusModal'
 
 interface TaskRowProps {
   page: Page
@@ -13,6 +14,7 @@ interface TaskRowProps {
 
 function TaskRow({ page, isEditing, onChange, DAY_WIDTH }: TaskRowProps) {
   const pageRef = useRef(page)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   useEffect(() => {
     pageRef.current = page
@@ -61,40 +63,58 @@ function TaskRow({ page, isEditing, onChange, DAY_WIDTH }: TaskRowProps) {
     window.addEventListener('mouseup', onUp)
   }
 
+  const handleTitleClick = () => {
+    if (isEditing) return
+    setIsModalOpen(true)
+  }
+
   return (
-    <div className='flex items-center h-16 relative hover:bg-gray-50/50 transition-colors'>
-      <div
-        className='text-base font-medium shrink-0 sticky left-0 bg-white z-50 flex flex-col pl-6 pr-6 justify-center border-r border-gray-100 h-full'
-        style={{ width: TASK_COL_WIDTH }}
-      >
-        {isEditing ? (
-          <input
-            type='text'
-            value={page.title}
-            onChange={(e) => onChange({ ...page, title: e.target.value })}
-            placeholder='태스크 이름 입력'
-            className='w-full border border-gray-200 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-shadow'
-          />
-        ) : (
-          <span className='truncate pr-2'>{page.title}</span>
-        )}
+    <>
+      <div className='flex items-center h-16 relative hover:bg-gray-50/50 transition-colors'>
+        <div
+          className='text-base font-medium shrink-0 sticky left-0 bg-white z-40 flex flex-col pl-6 pr-6 justify-center border-r border-gray-100 h-full'
+          style={{ width: TASK_COL_WIDTH }}
+        >
+          {isEditing ? (
+            <input
+              type='text'
+              value={page.title}
+              onChange={(e) => onChange({ ...page, title: e.target.value })}
+              placeholder='태스크 이름 입력'
+              className='w-full border border-gray-200 rounded px-2 py-1.5 text-sm focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-shadow'
+            />
+          ) : (
+            <span
+              onClick={handleTitleClick}
+              className='truncate pr-2 cursor-pointer hover:text-pink-500 transition-colors'
+            >
+              {page.title}
+            </span>
+          )}
+        </div>
+
+        <div
+          className={`relative flex-1 h-full flex items-center ${
+            isEditing && !page.date ? 'cursor-crosshair' : ''
+          }`}
+          onMouseDown={handleTrackMouseDown}
+        >
+          {page.date && (
+            <>
+              <ActualBar date={page.date} DAY_WIDTH={DAY_WIDTH} />
+              <PlannedBar
+                page={page}
+                isEditing={isEditing}
+                onChange={onChange}
+                DAY_WIDTH={DAY_WIDTH}
+              />
+            </>
+          )}
+        </div>
       </div>
 
-      <div
-        className={`relative flex-1 h-full flex items-center ${
-          isEditing && !page.date ? 'cursor-crosshair' : ''
-        }`}
-        onMouseDown={handleTrackMouseDown}
-      >
-        {page.status === '완료' && page.date && (
-          <ActualBar date={page.date} DAY_WIDTH={DAY_WIDTH} />
-        )}
-
-        {page.status !== '완료' && page.date && (
-          <PlannedBar page={page} isEditing={isEditing} onChange={onChange} DAY_WIDTH={DAY_WIDTH} />
-        )}
-      </div>
-    </div>
+      <ApiStatusModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} pageId={page.id} />
+    </>
   )
 }
 
