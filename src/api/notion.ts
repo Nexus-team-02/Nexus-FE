@@ -70,15 +70,6 @@ export async function getPageDetail(teamId: number, pageId: string) {
   }
 }
 
-export async function createChildDatabase(teamId: number, pageId: string) {
-  try {
-    const res = await client.post(`/api/v1/teams/${teamId}/notion/pages/${pageId}/databases`)
-    return res.data.result
-  } catch (error) {
-    throw handleApiError(error)
-  }
-}
-
 export async function updatePage(teamId: number, pageId: string, body: UpdatePageRequest) {
   try {
     const res = await client.patch(`/api/v1/teams/${teamId}/notion/pages/${pageId}`, body)
