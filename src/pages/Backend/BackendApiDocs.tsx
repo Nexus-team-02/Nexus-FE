@@ -1,55 +1,115 @@
 import ApiAccordionItem from '@/components/api/ApiAccordionItem'
+import useApi from '@/hook/useApi'
+import { getAllEndpoints } from '@/api/swagger'
+import { useEffect, useMemo, useState } from 'react'
+import { useParams } from 'react-router-dom'
+import Title from '@/components/common/Title'
+import Lock from '@/assets/lock.svg?react'
+import AuthorizeModal from '@/components/api/AuthorizeModal'
 
 export default function BackendApiDocsPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const { execute, loading, data } = useApi(getAllEndpoints)
+  const { teamId } = useParams()
+
+  useEffect(() => {
+    if (teamId) execute(Number(teamId))
+  }, [teamId, execute])
+
+  const { created, modified, deleted } = useMemo(() => {
+    const result = {
+      created: [] as typeof data,
+      modified: [] as typeof data,
+      deleted: [] as typeof data,
+    }
+
+    data?.forEach((endpoint) => {
+      if (endpoint.changeType === 'CREATED') result.created?.push(endpoint)
+      if (endpoint.changeType === 'MODIFIED') result.modified?.push(endpoint)
+      if (endpoint.changeType === 'DELETED') result.deleted?.push(endpoint)
+    })
+
+    return result
+  }, [data])
+
   return (
-    <div className='flex flex-col gap-6 p-6'>
-      <h1 className='text-2xl font-bold'>Frontend API Docs</h1>
+    <div className='min-h-screen p-20 z-20'>
+      <div className='w-full rounded-xl bg-white mx-auto p-8 mt-35'>
+        <h1 className='font-extrabold text-lg pb-10'>NEW CHANGES</h1>
+        {loading && <div className='mb-4'>Loading...</div>}
 
-      <ApiAccordionItem
-        method='GET'
-        path='/api/users'
-        summary='유저 목록 조회'
-        description='전체 유저를 조회합니다.'
-        responses={[
-          {
-            status: 200,
-            description: '성공 시 유저 목록 반환',
-            example: [
-              { id: 1, name: '세은' },
-              { id: 2, name: '민수' },
-            ],
-          },
-        ]}
-      />
+        <Title>ADD</Title>
+        <div className='flex flex-col gap-4 mb-8'>
+          {created?.map((endpoint) => (
+            <ApiAccordionItem
+              key={endpoint.endpointId}
+              method={endpoint.method}
+              path={endpoint.path}
+              summary={endpoint.summary}
+              endpointId={endpoint.endpointId}
+            />
+          ))}
+        </div>
 
-      {/* POST /api/users */}
-      <ApiAccordionItem
-        method='POST'
-        path='/api/users'
-        summary='유저 생성'
-        description='새로운 유저를 생성합니다.'
-        requestBody={{ name: '세은' }}
-        responses={[
-          {
-            status: 201,
-            description: '생성 성공',
-            example: { id: 3, name: '세은' },
-          },
-        ]}
-      />
+        <Title>UPDATE</Title>
+        <div className='flex flex-col gap-4 mb-8'>
+          {modified?.map((endpoint) => (
+            <ApiAccordionItem
+              key={endpoint.endpointId}
+              method={endpoint.method}
+              path={endpoint.path}
+              summary={endpoint.summary}
+              endpointId={endpoint.endpointId}
+            />
+          ))}
+        </div>
 
-      {/* DELETE /api/users/{id} */}
-      <ApiAccordionItem
-        method='DELETE'
-        path='/api/users/{id}'
-        summary='유저 삭제'
-        description='삭제 시 복구 불가'
-        params={[{ name: 'id', type: 'number', required: true, description: '삭제할 유저 ID' }]}
-        responses={[
-          { status: 204, description: '삭제 성공' },
-          { status: 404, description: '유저를 찾을 수 없음' },
-        ]}
-      />
+        <Title>DELETE</Title>
+        <div className='flex flex-col gap-4 mb-8'>
+          {deleted?.map((endpoint) => (
+            <ApiAccordionItem
+              key={endpoint.endpointId}
+              method={endpoint.method}
+              path={endpoint.path}
+              summary={endpoint.summary}
+              endpointId={endpoint.endpointId}
+            />
+          ))}
+        </div>
+
+        <Title
+          right={
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className='flex items-center gap-1 rounded-md border border-black px-2 py-1 text-sm font-medium text-black hover:bg-gray-100/50 cursor-pointer'
+            >
+              Authorise
+              <Lock className='w-4.5 h-4.5' />
+            </button>
+          }
+        >
+          ALL
+        </Title>
+        <div className='flex flex-col gap-4'>
+          {data?.map((endpoint) => (
+            <ApiAccordionItem
+              key={endpoint.endpointId}
+              method={endpoint.method}
+              path={endpoint.path}
+              summary={endpoint.summary}
+              endpointId={endpoint.endpointId}
+            />
+          ))}
+        </div>
+      </div>
+      {isModalOpen && (
+        <AuthorizeModal
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={(token) => {
+            localStorage.setItem('accessToken', token)
+          }}
+        />
+      )}
     </div>
   )
 }
