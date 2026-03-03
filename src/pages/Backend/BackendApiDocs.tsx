@@ -6,9 +6,12 @@ import { useParams } from 'react-router-dom'
 import Title from '@/components/common/Title'
 import Lock from '@/assets/lock.svg?react'
 import AuthorizeModal from '@/components/api/AuthorizeModal'
+import Folder from '@/components/common/Folder'
 
 export default function BackendApiDocsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [viewMode, setViewMode] = useState<'LIST' | 'FLOW'>('LIST')
+
   const { execute, loading, data } = useApi(getAllEndpoints)
   const { teamId } = useParams()
 
@@ -36,6 +39,7 @@ export default function BackendApiDocsPage() {
     <div className='min-h-screen p-20 z-20'>
       <div className='w-full rounded-xl bg-white mx-auto p-8 mt-35'>
         <h1 className='font-extrabold text-lg pb-10'>NEW CHANGES</h1>
+
         {loading && <div className='mb-4'>Loading...</div>}
 
         <Title>ADD</Title>
@@ -79,29 +83,60 @@ export default function BackendApiDocsPage() {
 
         <Title
           right={
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className='flex items-center gap-1 rounded-md border border-black px-2 py-1 text-sm font-medium text-black hover:bg-gray-100/50 cursor-pointer'
-            >
-              Authorise
-              <Lock className='w-4.5 h-4.5' />
-            </button>
+            <div className='flex items-center gap-3'>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className='cursor-pointer flex items-center gap-1 rounded-md border border-black px-2 py-1 text-sm font-medium text-black hover:bg-gray-100/50'
+              >
+                Authorise
+                <Lock className='w-4.5 h-4.5' />
+              </button>
+              <button
+                onClick={() => setViewMode('LIST')}
+                className={`cursor-pointer px-3 py-1 rounded-md border text-sm ${
+                  viewMode === 'LIST' ? 'bg-black text-white' : 'border-gray-400 text-gray-700'
+                }`}
+              >
+                List
+              </button>
+
+              <button
+                onClick={() => setViewMode('FLOW')}
+                className={`cursor-pointer px-3 py-1 rounded-md border text-sm ${
+                  viewMode === 'FLOW' ? 'bg-black text-white' : 'border-gray-400 text-gray-700'
+                }`}
+              >
+                Flow
+              </button>
+            </div>
           }
         >
-          ALL
+          {viewMode === 'LIST' ? 'ALL' : 'FLOW'}
         </Title>
-        <div className='flex flex-col gap-4'>
-          {data?.map((endpoint) => (
-            <ApiAccordionItem
-              key={endpoint.endpointId}
-              method={endpoint.method}
-              path={endpoint.path}
-              summary={endpoint.summary}
-              endpointId={endpoint.endpointId}
-            />
-          ))}
-        </div>
+
+        {viewMode === 'LIST' && (
+          <div className='flex flex-col gap-4'>
+            {data?.map((endpoint) => (
+              <ApiAccordionItem
+                key={endpoint.endpointId}
+                method={endpoint.method}
+                path={endpoint.path}
+                summary={endpoint.summary}
+                endpointId={endpoint.endpointId}
+              />
+            ))}
+          </div>
+        )}
+
+        {viewMode === 'FLOW' && (
+          <div className='flex gap-8 flex-wrap mt-6'>
+            <Folder folderName='LOGIN' />
+            <Folder folderName='MAIN' />
+            <Folder folderName='MYPAGE' />
+          </div>
+        )}
       </div>
+
       {isModalOpen && (
         <AuthorizeModal
           onClose={() => setIsModalOpen(false)}

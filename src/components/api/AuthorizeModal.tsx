@@ -17,7 +17,7 @@ export default function AuthorizeModal({ onClose, onSubmit }: AuthorizeModalProp
   }
 
   return (
-    <Modal title='Available authorizations' onClose={onClose} bg='bg-gray-50'>
+    <Modal title='Available authorizations' size='md' onClose={onClose} bg='bg-back'>
       <div className='space-y-6'>
         <div>
           <p className='text-sm font-medium text-gray-800'>bearerAuth (http, Bearer)</p>
