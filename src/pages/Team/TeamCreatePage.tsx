@@ -42,6 +42,10 @@ export default function TeamCreatePage() {
     }
   }
 
+  const handleCancel = () => {
+    navigate(-1)
+  }
+
   return (
     <main className='mx-auto max-w-250 px-6 py-30'>
       <TeamTitle value={form.name} onChange={(value) => handleChange('name', value)} />
@@ -63,7 +67,10 @@ export default function TeamCreatePage() {
 
       {error && <p className='text-red-500 mt-4 text-center'>팀 생성 중 오류가 발생했습니다.</p>}
 
-      <div className='mt-20 flex justify-center'>
+      <div className='mt-20 flex justify-center gap-4'>
+        <Button variant='outline' onClick={handleCancel} disabled={loading}>
+          CANCEL
+        </Button>
         <Button variant='primary' onClick={handleSubmit} disabled={loading}>
           {loading ? 'CREATING...' : 'CREATE'}
         </Button>
