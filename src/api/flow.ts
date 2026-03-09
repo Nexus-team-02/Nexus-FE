@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { client } from './client'
 import { handleApiError } from './handleApiError'
-import { CreateFlowRequest, CompleteS3Request } from '@/types/flow'
+import { CreateFlowRequest, CompleteS3Request, CreateCommentRequest } from '@/types/flow'
 
 export async function createFlow(body: CreateFlowRequest, teamId: number) {
   try {
@@ -57,6 +57,36 @@ export async function getFlowDetails(flowId: string) {
 export async function getFlowImageDetails(flowImageId: string) {
   try {
     const res = await client.get(`/api/v1/flows/images/${flowImageId}/requests`)
+    console.log(res)
+    return res.data.result
+  } catch (error) {
+    throw handleApiError(error)
+  }
+}
+
+export async function createRequestComment(imageId: number, body: CreateCommentRequest) {
+  try {
+    const res = await client.post(`/api/v1/flows/images/${imageId}/requests`, body)
+    console.log(res)
+    return res.data.result
+  } catch (error) {
+    throw handleApiError(error)
+  }
+}
+
+export async function getRequestComment(flowImageId: number) {
+  try {
+    const res = await client.get(`/api/v1/flows/images/${flowImageId}/requests`)
+    console.log(res)
+    return res.data.result
+  } catch (error) {
+    throw handleApiError(error)
+  }
+}
+
+export async function linkEndpointsToRequest(requestId: number, data: { endpointIds: number[] }) {
+  try {
+    const res = await client.post(`/api/v1/flows/images/requests/${requestId}/endpoints`, data)
     console.log(res)
     return res.data.result
   } catch (error) {
