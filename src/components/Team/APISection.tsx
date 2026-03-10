@@ -1,14 +1,12 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { ROLE_CONFIG, getRoleFromApi } from '@/constants/role'
+import { useTeamRoleStore } from '@/stores/teamRoleStore'
 import Title from '../common/Title'
 
-interface Props {
-  role?: string
-}
-
-export default function APISection({ role }: Props) {
+export default function APISection() {
   const navigate = useNavigate()
   const location = useLocation()
+  const role = useTeamRoleStore((s) => s.role)
 
   const handleClick = () => {
     if (!role) return
@@ -26,7 +24,12 @@ export default function APISection({ role }: Props) {
 
       <div
         onClick={handleClick}
-        className='relative flex flex-col p-5 border border-gray-200 rounded-xl bg-white hover:border-blue-500 hover:shadow-md cursor-pointer transition-all group'
+        className={`relative flex flex-col p-5 border border-gray-200 rounded-xl bg-white transition-all group
+          ${
+            role
+              ? 'hover:border-blue-500 hover:shadow-md cursor-pointer'
+              : 'opacity-50 cursor-not-allowed'
+          }`}
       >
         <div className='absolute top-5 right-5 flex items-center gap-1.5'>
           <span className='relative flex h-2.5 w-2.5'>
@@ -60,7 +63,6 @@ export default function APISection({ role }: Props) {
           </h3>
         </div>
 
-        {/* 설명 텍스트 */}
         <p className='text-sm text-gray-500 mt-1'>
           클릭하여 API 명세서를 확인하고 엔드포인트를 연동하세요.
         </p>

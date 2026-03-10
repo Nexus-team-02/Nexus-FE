@@ -13,6 +13,14 @@ const METHOD_COLORS: Record<string, string> = {
   PATCH: 'bg-[#8BE0C4]',
 }
 
+const METHOD_HEX_COLORS: Record<string, string> = {
+  GET: '#61affe',
+  POST: '#49cc90',
+  PUT: '#fca130',
+  DELETE: '#f93e3e',
+  PATCH: '#8BE0C4',
+}
+
 type DraftComment = { id: number; imageId: number; x: number; y: number; isDraft: true }
 
 interface CommentPinProps {
@@ -30,22 +38,46 @@ function PinBadge({ endpoints, index }: { endpoints?: LinkedEndpoint[]; index: n
   if (primary) {
     const shortPath = '/' + primary.path.split('/').filter(Boolean).slice(-2).join('/')
     const color = METHOD_COLORS[primary.method.toUpperCase()] ?? 'bg-gray-500'
+    const tipColor = METHOD_HEX_COLORS[primary.method.toUpperCase()] ?? '#6b7280'
+
     return (
-      <div
-        className={`flex items-center gap-1 ${color} text-white rounded-full pl-1.5 pr-2.5 py-1 text-[10px] font-bold shadow-md cursor-pointer hover:opacity-90 transition whitespace-nowrap`}
-      >
-        <span className='bg-white/20 rounded-full px-1'>{primary.method}</span>
-        <span className='font-mono'>{shortPath}</span>
-        {endpoints!.length > 1 && (
-          <span className='bg-white/30 rounded-full px-1'>+{endpoints!.length - 1}</span>
-        )}
+      <div className='flex flex-col items-center cursor-pointer hover:opacity-90 transition'>
+        <div
+          className={`flex items-center gap-1 ${color} text-white rounded-lg pl-1.5 pr-2.5 py-1 text-[10px] font-bold shadow-md whitespace-nowrap`}
+        >
+          <span className='bg-white/20 rounded-full px-1'>{primary.method}</span>
+          <span className='font-mono'>{shortPath}</span>
+          {endpoints!.length > 1 && (
+            <span className='bg-white/30 rounded-full px-1'>+{endpoints!.length - 1}</span>
+          )}
+        </div>
+        <div
+          style={{
+            width: 0,
+            height: 0,
+            borderLeft: '6px solid transparent',
+            borderRight: '6px solid transparent',
+            borderTop: `7px solid ${tipColor}`,
+          }}
+        />
       </div>
     )
   }
 
   return (
-    <div className='w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md cursor-pointer hover:bg-red-600 transition'>
-      {index}
+    <div className='flex flex-col items-center cursor-pointer transition'>
+      <div className='px-2 h-6 bg-red-500 text-white rounded-md flex items-center justify-center text-xs font-bold shadow-md hover:bg-red-600 transition'>
+        {index}
+      </div>
+      <div
+        style={{
+          width: 0,
+          height: 0,
+          borderLeft: '5px solid transparent',
+          borderRight: '5px solid transparent',
+          borderTop: '6px solid #ef4444',
+        }}
+      />
     </div>
   )
 }
@@ -176,7 +208,7 @@ export default function CommentPin({
     <div
       ref={pinRef}
       className='absolute z-50'
-      style={{ left: `${comment.x}%`, top: `${comment.y}%`, transform: 'translate(-50%, -50%)' }}
+      style={{ left: `${comment.x}%`, top: `${comment.y}%`, transform: 'translate(-50%, -100%)' }}
       onClick={(e) => {
         e.stopPropagation()
         if (isReadonly) setIsOpen((p) => !p)

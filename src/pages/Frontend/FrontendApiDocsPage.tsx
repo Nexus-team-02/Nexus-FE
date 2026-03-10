@@ -3,7 +3,8 @@ import useApi from '@/hook/useApi'
 import { SyncSwagger } from '@/api/swagger'
 import { getFlow } from '@/api/flow'
 import { useEffect, useMemo, useState, useCallback } from 'react'
-import { useParams, useLocation, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
+import { useTeamRoleStore } from '@/stores/teamRoleStore'
 import Title from '@/components/common/Title'
 import Lock from '@/assets/lock.svg?react'
 import AuthorizeModal from '@/components/api/AuthorizeModal'
@@ -19,10 +20,11 @@ export default function FrontendApiDocsPage() {
   const { execute: fetchFlows, data: flowData, loading: flowLoading } = useApi(getFlow)
 
   const { teamId } = useParams()
-  const { pathname } = useLocation()
-  const role = pathname.split('/')[3]
 
   const navigate = useNavigate()
+
+  const role = useTeamRoleStore((s) => s.role)
+  const isFrontend = role === 'FRONTEND'
 
   const handleSync = useCallback(() => {
     if (!teamId) return
@@ -175,10 +177,12 @@ export default function FrontendApiDocsPage() {
               <Lock className='w-4.5 h-4.5' />
             </button>
             <div className='w-px h-5 bg-gray-300 mx-1'></div>
-            <PlusIcon
-              className='w-7 h-7 cursor-pointer'
-              onClick={() => setIsFlowModalOpen(true)}
-            />{' '}
+            {isFrontend && (
+              <PlusIcon
+                className='w-7 h-7 cursor-pointer'
+                onClick={() => setIsFlowModalOpen(true)}
+              />
+            )}
           </div>
         </div>
         {flowLoading && <div>Loading flows...</div>}

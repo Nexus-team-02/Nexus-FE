@@ -27,21 +27,16 @@ type TeamLinkKey = keyof typeof TEAM_LINK_ICONS
 export default function TeamDetailPage() {
   const location = useLocation()
   const team = location.state as Team | undefined
-  const { role, setRole } = useTeamRoleStore()
+  const { setRole } = useTeamRoleStore()
 
   const { execute: executeMembers, data: memberData, loading } = useApi(getTeamMembers)
-
   const { execute: executeRole, data: roleData } = useApi(getTeamRole)
 
   useEffect(() => {
     if (!team) return
-
     executeMembers(team.teamId)
-
-    if (!role) {
-      executeRole(team.teamId)
-    }
-  }, [executeMembers, executeRole, team, role])
+    executeRole(team.teamId)
+  }, [executeMembers, executeRole, team])
 
   useEffect(() => {
     if (roleData) {
@@ -61,11 +56,8 @@ export default function TeamDetailPage() {
         <div className='mt-4 flex items-center gap-2.5'>
           {(Object.keys(TEAM_LINK_ICONS) as TeamLinkKey[]).map((key) => {
             const url = team[key]
-
             if (!url) return null
-
             const Icon = TEAM_LINK_ICONS[key]
-
             return (
               <a key={key} href={url} target='_blank' rel='noopener noreferrer'>
                 <Icon className='h-8 w-8' />
@@ -77,7 +69,7 @@ export default function TeamDetailPage() {
 
       <div className='mt-20 space-y-16'>
         {!loading ? <MemberSection teamId={team.teamId} members={memberData || []} /> : <></>}
-        <APISection role={roleData} />
+        <APISection />
       </div>
     </main>
   )
