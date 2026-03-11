@@ -1,169 +1,166 @@
 import { useState } from 'react'
+import { useParams } from 'react-router-dom'
 import Open from '@/assets/up.svg?react'
+import { getDetailsEndpoint, executeEndpoint } from '@/api/swagger'
+import useApi from '@/hook/useApi'
+import { useApiAuthStore } from '@/stores/apiAuthStore'
+import { HttpMethod } from '@/types/api'
+import { METHOD_STYLE } from '@/constants/method'
 
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE'
-
-const METHOD_STYLE: Record<HttpMethod, { bg: string; border: string; text: string }> = {
-  GET: { bg: 'bg-api-blue-sub', border: 'border-api-blue', text: 'text-api-blue' },
-  POST: { bg: 'bg-api-green-sub', border: 'border-api-green', text: 'text-api-green' },
-  PUT: { bg: 'bg-api-yellow-sub', border: 'border-api-yellow', text: 'text-api-yellow' },
-  DELETE: { bg: 'bg-api-red-sub', border: 'border-api-red', text: 'text-api-red' },
-}
-
-type JsonValue = string | number | boolean | null | JsonObject | JsonValue[]
-interface JsonObject {
-  [key: string]: JsonValue
-}
-
-interface ApiParam {
-  name: string
-  type: string
-  required?: boolean
-  description?: string
-}
-
-interface ApiResponse {
-  status: number
-  description: string
-  example?: JsonValue
-}
+import ApiParameters from './ApiParameters'
+import ApiRequestBody from './ApiRequestBody'
+import ApiExecutionResult from './ApiExecutionResult'
+import ApiResponses from './ApiResponses'
+import ApiSecurity from './ApiSecurity'
 
 interface Props {
   method: HttpMethod
   path: string
   summary?: string
-  description?: string
-  params?: ApiParam[]
-  requestBody?: JsonValue
-  responses?: ApiResponse[]
+  endpointId: number
 }
 
-function Section({
-  title,
-  children,
-  method,
-}: {
-  title: string
-  children: React.ReactNode
-  method: string
-}) {
-  return (
-    <div className='space-y-2'>
-      <h4
-        className={`text-sm px-4 py-4 bg-white border-t border-b ${METHOD_STYLE[method].border}  tracking-wider text-black`}
-      >
-        {title}
-      </h4>
-      <div className='px-4 py-4'>{children}</div>
-    </div>
-  )
-}
+export default function ApiAccordionItem({ method, path, summary, endpointId }: Props) {
+  const { execute, data, loading } = useApi(getDetailsEndpoint)
+  const { execute: executeApi, loading: executeLoading } = useApi(executeEndpoint)
 
-function ApiTable({ headers, rows }: { headers: string[]; rows: string[][] }) {
-  return (
-    <div className='overflow-hidden rounded border border-gray-200 bg-white'>
-      <table className='w-full border-collapse text-sm'>
-        <thead className='bg-gray-100'>
-          <tr>
-            {headers.map((h) => (
-              <th key={h} className='border-b px-3 py-2 text-left font-semibold text-gray-600'>
-                {h}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, i) => (
-            <tr key={i} className='odd:bg-white even:bg-gray-50'>
-              {row.map((cell, j) => (
-                <td key={j} className='border-b px-3 py-2 text-gray-700'>
-                  {cell}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
-}
+  const { teamId } = useParams()
+  const token = useApiAuthStore((s) => s.token)
 
-function CodeBlock({ data }: { data: JsonValue }) {
-  return (
-    <pre className='overflow-auto rounded-md bg-[#0f172a] p-3 text-xs text-slate-100'>
-      <code>{JSON.stringify(data, null, 2)}</code>
-    </pre>
-  )
-}
-
-export default function ApiAccordionItem({
-  method,
-  path,
-  summary,
-  description,
-  params,
-  requestBody,
-  responses,
-}: Props) {
   const [open, setOpen] = useState(false)
+  const [isTryItOut, setIsTryItOut] = useState(false)
+  const [paramsInput, setParamsInput] = useState<Record<string, string>>({})
+  const [bodyInput, setBodyInput] = useState('')
+
+  const [executionResult, setExecutionResult] = useState<unknown>(null)
+
+  const handleTryItOutChange = (val: boolean) => {
+    setIsTryItOut(val)
+    if (!val) {
+      setExecutionResult(null)
+    }
+  }
+
+  const handleToggle = async () => {
+    const next = !open
+    setOpen(next)
+
+    if (next && !data) {
+      await execute(endpointId)
+    }
+
+    if (!next) {
+      setIsTryItOut(false)
+      setExecutionResult(null)
+    }
+  }
+
+  const handleParamChange = (name: string, value: string) => {
+    setParamsInput((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
+  }
+
+  const handleExecute = async () => {
+    if (!teamId || !data) return
+
+    try {
+      setExecutionResult(null)
+
+      const pathVariables: Record<string, string> = {}
+      const queryParams: Record<string, string> = {}
+
+      data.parameters?.forEach((p) => {
+        const value = paramsInput[p.name]
+        if (!value) return
+
+        if (p.in === 'path') {
+          pathVariables[p.name] = value
+        }
+
+        if (p.in === 'query') {
+          queryParams[p.name] = value
+        }
+      })
+
+      const result = await executeApi(endpointId, Number(teamId), {
+        pathVariables,
+        queryParams,
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        body: bodyInput,
+      })
+
+      setExecutionResult(result)
+    } catch (e) {
+      console.error(e)
+      setExecutionResult({
+        error: true,
+        message: e.message || '요청 중 오류가 발생했습니다.',
+        details: e,
+      })
+    }
+  }
 
   return (
     <div className={`overflow-hidden rounded-md border ${METHOD_STYLE[method].border}`}>
       <button
-        onClick={() => setOpen(!open)}
-        className={`flex w-full items-center gap-3 px-2 py-2 text-left ${METHOD_STYLE[method].bg}`}
+        onClick={handleToggle}
+        className={`flex w-full cursor-pointer items-center gap-3 px-3 py-2 transition-colors hover:brightness-95 ${METHOD_STYLE[method].bg}`}
       >
         <span
-          className={`min-w-16 rounded px-2 py-1.75 text-center text-xs font-semibold text-white
-            ${METHOD_STYLE[method].border.replace('border', 'bg')}`}
+          className={`min-w-16 rounded px-3 py-1.5 pt-1.75 text-center text-xs font-bold text-white ${METHOD_STYLE[method].badge}`}
         >
           {method}
         </span>
 
         <span className='text-sm font-medium text-gray-900'>{path}</span>
-        {summary && <span className='text-sm text-gray-600'>{summary}</span>}
+        {summary && <span className='text-xs text-gray-600 mt-1'>{summary}</span>}
 
-        <span className={`ml-auto transition-transform ${open ? 'rotate-180' : ''}`}>
-          <Open className={`${METHOD_STYLE[method].text} w-6 h-6`} />
+        <span className={`ml-auto transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>
+          <Open className={`${METHOD_STYLE[method].text} h-5 w-5`} />
         </span>
       </button>
 
       {open && (
         <div
-          className={`space-y-6 border-t ${METHOD_STYLE[method].border} ${METHOD_STYLE[method].bg} text-sm`}
+          className={`space-y-4 border-t px-4 py-6 ${METHOD_STYLE[method].border} ${METHOD_STYLE[method].bg}`}
         >
-          {description && <p className='px-4 py-4 text-gray-500'>{description}</p>}
+          {loading && (
+            <div className='animate-pulse p-4 text-sm font-medium text-gray-500'>
+              Loading parameters and responses...
+            </div>
+          )}
 
-          {params && params.length > 0 && (
-            <Section title='Parameters' method={method}>
-              <ApiTable
-                headers={['Name', 'Type', 'Required', 'Description']}
-                rows={params.map((p) => [
-                  p.name,
-                  p.type,
-                  p.required ? 'Yes' : 'No',
-                  p.description ?? '-',
-                ])}
+          {data && (
+            <>
+              <ApiParameters
+                parameters={data.parameters}
+                method={method}
+                isTryItOut={isTryItOut}
+                setIsTryItOut={handleTryItOutChange}
+                paramsInput={paramsInput}
+                handleParamChange={handleParamChange}
+                handleExecute={handleExecute}
+                executeLoading={executeLoading}
               />
-            </Section>
-          )}
 
-          {requestBody && (
-            <Section title='Request Body' method={method}>
-              <CodeBlock data={requestBody} />
-            </Section>
-          )}
+              <ApiRequestBody
+                requests={data.requests}
+                method={method}
+                isTryItOut={isTryItOut}
+                bodyInput={bodyInput}
+                setBodyInput={setBodyInput}
+              />
 
-          {responses && responses.length > 0 && (
-            <Section title='Responses' method={method}>
-              {responses.map((res) => (
-                <div key={res.status} className='space-y-2'>
-                  <div className='font-semibold text-gray-700'>{res.status}</div>
-                  <div className='text-gray-600'>{res.description}</div>
-                  {res.example && <CodeBlock data={res.example} />}
-                </div>
-              ))}
-            </Section>
+              <ApiExecutionResult result={executionResult} method={method} />
+
+              <ApiResponses responses={data.responses} method={method} />
+
+              <ApiSecurity security={data.security} method={method} />
+            </>
           )}
         </div>
       )}

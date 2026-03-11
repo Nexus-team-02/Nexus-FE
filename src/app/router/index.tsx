@@ -14,9 +14,8 @@ import TeamCreatePage from '@/pages/Team/TeamCreatePage'
 import TeamDetailPage from '@/pages/Team/TeamDetailPage'
 
 import BackendApiDocsPage from '@/pages/Backend/BackendApiDocs'
-import BackendApiIntegrationPage from '@/pages/Backend/BackendApiIntegrationPage'
 import FrontendApiDocsPage from '@/pages/Frontend/FrontendApiDocsPage'
-import FrontendApiIntegrationPage from '@/pages/Frontend/FrontendApiIntegrationPage'
+import ApiIntegrationPage from '@/pages/Frontend/ApiIntegrationPage'
 import PmPage from '@/pages/PM/PmPage'
 import NotionCallback from '@/pages/PM/NotionCallback'
 import QaPage from '@/pages/QA/QaPage'
@@ -76,15 +75,15 @@ export const router = createBrowserRouter([
           {
             path: 'backend',
             children: [
-              { path: 'docs', element: <BackendApiDocsPage /> },
-              { path: 'integration', element: <BackendApiIntegrationPage /> },
+              { path: '', element: <BackendApiDocsPage /> },
+              { path: 'integration/:flowId', element: <ApiIntegrationPage /> },
             ],
           },
           {
             path: 'frontend',
             children: [
-              { path: 'docs', element: <FrontendApiDocsPage /> },
-              { path: 'integration', element: <FrontendApiIntegrationPage /> },
+              { path: '', element: <FrontendApiDocsPage /> },
+              { path: 'integration/:flowId', element: <ApiIntegrationPage /> },
             ],
           },
           { path: 'qa', element: <QaPage /> },

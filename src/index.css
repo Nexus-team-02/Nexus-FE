@@ -188,3 +188,8 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+
+#nprogress .bar {
+  height: 3px !important;
+  z-index: 9999 !important;
+}

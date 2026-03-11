@@ -18,7 +18,7 @@ export default function PlannedBar({
 
   const startOffset = getDayOffset(page.date.start)
   const endOffset = getDayOffset(page.date.end)
-  const duration = endOffset - startOffset + 1
+  const duration = endOffset - startOffset
 
   const handleDrag = (e: React.MouseEvent) => {
     if (!isEditing || !page.date) return
