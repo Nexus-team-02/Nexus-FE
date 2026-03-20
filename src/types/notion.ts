@@ -4,6 +4,10 @@ export interface UpdatePageRequest {
     start: string
     end?: string
   }
+  completedDate?: {
+    start: string
+    end?: string | null
+  }
   status?: string
 }
 
@@ -12,6 +16,10 @@ export interface CreatePageRequest {
   date?: {
     start: string
     end?: string
+  }
+  completedDate?: {
+    start: string
+    end?: string | null
   }
   status?: string
 }
