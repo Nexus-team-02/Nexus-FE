@@ -148,6 +148,10 @@
   );
 
   --bg-qa: linear-gradient(355deg, rgba(255, 255, 255, 0.1) 14.72%, rgba(0, 161, 87, 0.1) 85.59%);
+
+--color-dot-gray: #c8c6be;
+  --color-dot-bg: #f7f6f3;
+  --bg-dot-pattern: radial-gradient(circle, var(--color-dot-gray) 1px, transparent 1px);
 }
 
 @layer components {
@@ -177,6 +181,12 @@
 
   .screen-center {
     @apply flex min-h-screen flex-col items-center;
+  }
+
+  .bg-dot-layout {
+    background-color: var(--color-dot-bg);
+    background-image: var(--bg-dot-pattern);
+    background-size: 24px 24px;
   }
 }
 
