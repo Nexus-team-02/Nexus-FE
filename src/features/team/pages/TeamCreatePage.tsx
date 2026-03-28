@@ -30,6 +30,10 @@ export default function TeamCreatePage() {
   }
 
   const handleSubmit = async () => {
+    if (!form.name.trim()) {
+      toast.error('팀 이름을 입력해주세요.')
+      return
+    }
     try {
       await execute({
         ...form,
