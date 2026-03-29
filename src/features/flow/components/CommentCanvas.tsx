@@ -52,10 +52,6 @@ export default function CommentCanvas({
 
   return (
     <div className='relative z-20 w-full h-full bg-white rounded-2xl shadow-lg overflow-hidden'>
-      {editMode && (
-        <div className={`fixed inset-0 bg-black/10 z-10 pointer-events-none transition-opacity`} />
-      )}
-
       <div
         onClick={handleImageClick}
         className={`relative w-full h-full z-20 ${editMode ? 'cursor-crosshair' : ''}`}
