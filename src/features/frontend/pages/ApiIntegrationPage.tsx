@@ -55,21 +55,27 @@ export default function ApiIntegrationPage() {
 
   return (
     <div className='min-h-screen p-10 pt-50 z-20 flex flex-col items-center'>
-      {role === 'FRONTEND' && (
-        <EditIcon
-          onClick={() => setEditMode((prev) => !prev)}
-          className={`w-6 h-6 ml-170 transition cursor-pointer animate-fade-in ${
-            editMode ? 'text-red-500 hover:text-red-600' : 'text-gray-700 hover:text-blue-700'
-          }`}
-        />
+      {editMode && (
+        <div className='fixed inset-0 bg-black/30 z-30 pointer-events-none transition-opacity' />
       )}
 
-      <div className='w-full max-w-5xl flex items-center justify-between mb-16 mt-10 animate-fade-up'>
+      {role === 'FRONTEND' && (
+        <div className='relative z-40 -mt-10'>
+          <EditIcon
+            onClick={() => setEditMode((prev) => !prev)}
+            className={`w-6 h-6 ml-170 transition cursor-pointer animate-fade-in ${
+              editMode ? 'text-red-500 hover:text-red-600' : 'text-gray-700 hover:text-blue-700'
+            }`}
+          />
+        </div>
+      )}
+
+      <div className='relative z-40 w-full max-w-5xl flex items-center justify-between mb-16 mt-10 animate-fade-up'>
         <LeftIcon
           onClick={goToPrev}
           className='cursor-pointer w-12 h-12 flex items-center justify-center bg-black text-white rounded-full hover:bg-gray-800 transition'
         />
-        <div className='relative w-180 h-105'>
+        <div className='relative w-180 h-105 z-40'>
           <CommentCanvas
             currentImage={currentImage}
             editMode={editMode && role === 'FRONTEND'}
