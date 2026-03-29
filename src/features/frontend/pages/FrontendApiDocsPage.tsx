@@ -17,7 +17,8 @@ export default function FrontendApiDocsPage() {
   const role = useTeamRoleStore((s) => s.role)
   const isFrontend = role === 'FRONTEND'
 
-  const { created, modified, deleted, hasChanges, flowData, flowLoading } = useApiDocs(teamId)
+  const { created, modified, deleted, hasChanges, flowData, flowLoading, refetch } =
+    useApiDocs(teamId)
 
   const changesRef = useRef<HTMLDivElement>(null)
   const flowRef = useRef<HTMLDivElement>(null)
@@ -130,7 +131,11 @@ export default function FrontendApiDocsPage() {
 
         {isModalOpen && <AuthorizeModal onClose={() => setIsModalOpen(false)} />}
         {isFlowModalOpen && (
-          <CreateFlowModal onClose={() => setIsFlowModalOpen(false)} isOpen={isFlowModalOpen} />
+          <CreateFlowModal
+            onClose={() => setIsFlowModalOpen(false)}
+            isOpen={isFlowModalOpen}
+            onSuccess={refetch}
+          />
         )}
       </div>
     </div>

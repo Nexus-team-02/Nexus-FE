@@ -10,9 +10,10 @@ import Folder from '@/shared/components/Folder'
 interface CreateFlowModalProps {
   isOpen: boolean
   onClose: () => void
+  onSuccess?: () => void
 }
 
-export default function CreateFlowModal({ isOpen, onClose }: CreateFlowModalProps) {
+export default function CreateFlowModal({ isOpen, onClose, onSuccess }: CreateFlowModalProps) {
   const [folderName, setFolderName] = useState('')
   const [description, setDescription] = useState('')
   const [uploading, setUploading] = useState(false)
@@ -96,6 +97,7 @@ export default function CreateFlowModal({ isOpen, onClose }: CreateFlowModalProp
 
       await completeS3Execute(completeBody)
 
+      onSuccess?.()
       onClose()
     } catch (error) {
       console.error(error)
