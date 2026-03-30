@@ -26,6 +26,7 @@ export default function TaskSection({ availableFlows }: TaskSectionProps) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(false)
   const [modal, setModal] = useState<ModalState | null>(null)
+  const [completingIds, setCompletingIds] = useState<Set<string>>(new Set())
 
   const fetchTasks = useCallback(async () => {
     if (!teamId) return
@@ -45,6 +46,7 @@ export default function TaskSection({ availableFlows }: TaskSectionProps) {
   }, [fetchTasks])
 
   const handleToggleComplete = useCallback(async (taskId: string, current: boolean) => {
+    setCompletingIds((prev) => new Set(prev).add(taskId))
     try {
       await updateTaskFlowMappingCompleted(taskId, !current)
       setTasks((prev) =>
@@ -52,6 +54,12 @@ export default function TaskSection({ availableFlows }: TaskSectionProps) {
       )
     } catch (err) {
       console.error(err)
+    } finally {
+      setCompletingIds((prev) => {
+        const next = new Set(prev)
+        next.delete(taskId)
+        return next
+      })
     }
   }, [])
 
@@ -108,6 +116,7 @@ export default function TaskSection({ availableFlows }: TaskSectionProps) {
                     <TaskCard
                       key={task.taskId}
                       task={task}
+                      isCompleting={completingIds.has(task.taskId)}
                       onToggleComplete={handleToggleComplete}
                       onOpenFlowModal={handleOpenFlowModal}
                     />

@@ -39,12 +39,14 @@ interface QaNavigatorProps {
   teamId: number
   selectedEndpointId: number | null
   onSelectEndpoint: (endpoint: QaEndpoint) => void
+  refreshSignal?: number
 }
 
 export default function QaNavigator({
   teamId,
   selectedEndpointId,
   onSelectEndpoint,
+  refreshSignal = 0,
 }: QaNavigatorProps) {
   const { data: tags, loading, error, execute: fetchTags } = useApi<QaTag[]>(getTags)
   const [collapsedTags, setCollapsedTags] = useState<Set<string>>(new Set())
@@ -55,6 +57,10 @@ export default function QaNavigator({
   useEffect(() => {
     fetchTags(teamId)
   }, [teamId, fetchTags])
+
+  useEffect(() => {
+    if (refreshSignal > 0) fetchTags(teamId)
+  }, [refreshSignal, teamId, fetchTags])
 
   useEffect(() => {
     if (!tags?.length) return

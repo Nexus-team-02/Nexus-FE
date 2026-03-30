@@ -27,6 +27,7 @@ export default function QaPage() {
   })
   const [expandedCases, setExpandedCases] = useState<Set<number>>(new Set())
   const [runAllSignal, setRunAllSignal] = useState(0)
+  const [navigatorRefreshSignal, setNavigatorRefreshSignal] = useState(0)
 
   const [localSuccessMap, setLocalSuccessMap] = useState<
     Record<number, boolean | null | undefined>
@@ -89,6 +90,9 @@ export default function QaPage() {
 
   const handleSuccessChange = useCallback((qaId: number, success: boolean | null) => {
     setLocalSuccessMap((prev) => ({ ...prev, [qaId]: success }))
+    if (success !== null) {
+      setNavigatorRefreshSignal((prev) => prev + 1)
+    }
   }, [])
 
   const { passedCount, totalCount } = useMemo(() => {
@@ -115,6 +119,7 @@ export default function QaPage() {
           teamId={Number(teamId)}
           selectedEndpointId={selectedEndpoint?.endpointId ?? null}
           onSelectEndpoint={handleSelectEndpoint}
+          refreshSignal={navigatorRefreshSignal}
         />
       </div>
 

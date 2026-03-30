@@ -1,4 +1,5 @@
 import PlusIcon from '@/assets/plus.svg?react'
+import Spinner from '@/shared/components/Spinner'
 
 interface ConnectedFlow {
   flowId: number
@@ -16,15 +17,27 @@ interface Task {
 
 interface TaskCardProps {
   task: Task
+  isCompleting?: boolean
   onToggleComplete: (taskId: string, current: boolean) => void
   onOpenFlowModal: (taskId: string) => void
 }
 
-export default function TaskCard({ task, onToggleComplete, onOpenFlowModal }: TaskCardProps) {
+export default function TaskCard({
+  task,
+  isCompleting,
+  onToggleComplete,
+  onOpenFlowModal,
+}: TaskCardProps) {
   const { taskId, title, dateStart, dateEnd, flowMappingCompleted, flows } = task
 
   return (
     <div className='rounded-xl border border-gray-200 bg-gray-50 p-4 transition-shadow hover:shadow-sm'>
+      {isCompleting && (
+        <div className='absolute inset-0 rounded-xl bg-white/70 flex items-center justify-center z-10'>
+          <Spinner />
+        </div>
+      )}
+
       <div className='flex items-start justify-between mb-3'>
         <div>
           <p className='text-sm font-semibold text-gray-900'>{title}</p>
