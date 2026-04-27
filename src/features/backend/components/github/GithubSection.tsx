@@ -200,7 +200,7 @@ function DiffFileCard({ file }: { file: DiffFile }) {
   )
 }
 
-export default function GitHubSection() {
+export default function GitHubSection({ refreshTrigger }: { refreshTrigger?: boolean }) {
   const { teamId } = useParams()
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -220,7 +220,7 @@ export default function GitHubSection() {
 
   useEffect(() => {
     refresh()
-  }, [refresh])
+  }, [refresh, refreshTrigger])
 
   const config = configRaw as {
     repoOwner: string
