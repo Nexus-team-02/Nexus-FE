@@ -17,6 +17,7 @@ type ViewMode = 'LIST' | 'FLOW'
 export default function BackendApiDocsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>('LIST')
+  const [syncTick, setSyncTick] = useState(false)
 
   const { teamId } = useParams()
   const navigate = useNavigate()
@@ -41,9 +42,8 @@ export default function BackendApiDocsPage() {
 
     try {
       await syncSwagger(Number(teamId))
-      if (refetch) {
-        refetch()
-      }
+      refetch?.()
+      setSyncTick((v) => !v)
     } catch (error) {
       console.error('Swagger sync failed:', error)
     }
@@ -148,7 +148,7 @@ export default function BackendApiDocsPage() {
 
       <div className='w-full rounded-xl bg-white mx-auto p-8 mt-35 animate-fade-up'>
         <div ref={githubRef} className='scroll-mt-32'>
-          <GitHubSection />
+          <GitHubSection refreshTrigger={syncTick} />
         </div>
 
         {hasChanges && (

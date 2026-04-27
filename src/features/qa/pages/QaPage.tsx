@@ -19,7 +19,7 @@ export default function QaPage() {
 
   const [selectedEndpoint, setSelectedEndpoint] = useState<QaEndpoint | null>(() => {
     try {
-      const saved = localStorage.getItem('qa-selected-endpoint')
+      const saved = localStorage.getItem(`qa-selected-endpoint-${teamId}`)
       return saved ? (JSON.parse(saved) as QaEndpoint) : null
     } catch {
       return null
@@ -56,13 +56,16 @@ export default function QaPage() {
     fetchCases(selectedEndpoint.endpointId)
   }, [selectedEndpoint, fetchCases])
 
-  const handleSelectEndpoint = useCallback((endpoint: QaEndpoint) => {
-    setSelectedEndpoint(endpoint)
-    setExpandedCases(new Set())
-    setLocalSuccessMap({})
-    setRunAllSignal(0)
-    localStorage.setItem('qa-selected-endpoint', JSON.stringify(endpoint))
-  }, [])
+  const handleSelectEndpoint = useCallback(
+    (endpoint: QaEndpoint) => {
+      setSelectedEndpoint(endpoint)
+      setExpandedCases(new Set())
+      setLocalSuccessMap({})
+      setRunAllSignal(0)
+      localStorage.setItem(`qa-selected-endpoint-${teamId}`, JSON.stringify(endpoint))
+    },
+    [teamId],
+  )
 
   const toggleCase = useCallback((id: number) => {
     setExpandedCases((prev) => {
